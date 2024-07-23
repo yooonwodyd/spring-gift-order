@@ -30,8 +30,8 @@ public class OptionRestController {
 	@PostMapping("/api/v1/product/{id}/option")
 	@ResponseBody
 	public ResponseEntity<?> addOption(@PathVariable Long id, @RequestBody @Valid List<OptionRequest> optionRequests) {
-		Long l = optionService.addOptions(id, optionRequests);
-		return ResponseEntity.ok(l);
+		Long optionId = optionService.addOptions(id, optionRequests);
+		return ResponseEntity.ok(optionId);
 	}
 
 	// 상품 옵션 삭제 메서드

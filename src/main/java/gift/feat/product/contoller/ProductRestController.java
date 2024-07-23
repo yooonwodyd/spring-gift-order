@@ -29,7 +29,7 @@ public class ProductRestController {
 	@ResponseBody
 	public ResponseEntity<Long> registerProduct(@RequestBody @Valid ProductCreateRequest productCreateRequest) {
 		Long id = productService.saveProduct(productCreateRequest);
-		optionService.addOptions(id,productCreateRequest.options());
+		optionService.addOptions(id, productCreateRequest.options());
 		return ResponseEntity.ok(id);
 	}
 	// 상품 단일 조회 메서드
