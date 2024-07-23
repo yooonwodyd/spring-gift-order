@@ -1,1 +1,1 @@
-# spring-gift-order
+# spring-gift-jpa
