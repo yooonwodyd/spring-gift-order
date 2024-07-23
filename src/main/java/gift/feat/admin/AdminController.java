@@ -7,7 +7,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import gift.feat.product.contoller.dto.ProductResponseDto;
+import gift.feat.product.contoller.dto.response.ProductResponse;
 import gift.feat.product.service.ProductService;
 
 import gift.feat.user.repository.UserJpaRepository;
@@ -23,8 +23,8 @@ public class AdminController {
 
 	@GetMapping("/admin/product")
 	public String viewProducts(Model model) {
-		List<ProductResponseDto> products = productService.getAllProducts().stream()
-			.map(ProductResponseDto::from)
+		List<ProductResponse> products = productService.getAllProducts().stream()
+			.map(ProductResponse::from)
 			.toList();
 		model.addAttribute("products", products);
 		return "admin/productPage";
@@ -33,8 +33,8 @@ public class AdminController {
 
 	@GetMapping("/admin/user/wishlist/{userId}")
 	public String viewWishList(Model model,@PathVariable Long userId) {
-		List<ProductResponseDto> products = wishListRepository.findByUserId(userId).stream()
-			.map(wishProduct -> ProductResponseDto.from(wishProduct.getProduct()))
+		List<ProductResponse> products = wishListRepository.findByUserId(userId).stream()
+			.map(wishProduct -> ProductResponse.from(wishProduct.getProduct()))
 			.toList();
 		model.addAttribute("products", products);
 		return "admin/wishListPage";

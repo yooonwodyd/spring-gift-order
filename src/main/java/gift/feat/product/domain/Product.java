@@ -1,5 +1,7 @@
 package gift.feat.product.domain;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import jakarta.persistence.Entity;
@@ -9,6 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
@@ -19,6 +22,9 @@ public class Product {
 	private String name;
 	private Long price;
 	private String imageUrl;
+
+	@OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
+	private List<Option> options = new ArrayList<>();
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@NotNull
@@ -32,6 +38,11 @@ public class Product {
 		this.price = price;
 		this.imageUrl = imageUrl;
 		this.category = category;
+	}
+
+	public void addOption(Option option){
+		option.setProduct(this);
+		this.options.add(option);
 	}
 
 	public static Product of(String name, Long price, String imageUrl, Category category) {
@@ -72,6 +83,10 @@ public class Product {
 
 	public void setCategory(Category category) {
 		this.category = category;
+	}
+
+	public List<Option> getOptions() {
+		return options;
 	}
 
 	@Override

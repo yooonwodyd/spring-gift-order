@@ -1,10 +1,14 @@
-package gift.feat.product.contoller.dto;
+package gift.feat.product.contoller.dto.request;
+
+import java.util.List;
 
 import gift.core.annotaions.NoKakao;
 import gift.core.annotaions.ValidCharset;
 import gift.core.exception.ValidationMessage;
 import gift.feat.product.domain.Category;
+import gift.feat.product.domain.Option;
 import gift.feat.product.domain.Product;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
@@ -16,9 +20,8 @@ public record ProductCreateRequest(
 	Long price,
 	String imageUrl,
 	@NotNull(message = ValidationMessage.NOT_NULL_MSG)
-	String categoryName
+	String categoryName,
+	@Valid
+	List<OptionRequest> options
 ) {
-	public Product toEntity(Category category) {
-		return Product.of(name, price, imageUrl, category);
-	}
 }

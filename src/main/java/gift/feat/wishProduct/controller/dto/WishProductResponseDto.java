@@ -1,12 +1,12 @@
 package gift.feat.wishProduct.controller.dto;
 
-import gift.feat.product.contoller.dto.ProductResponseDto;
+import gift.feat.product.contoller.dto.response.ProductResponse;
 import gift.feat.wishProduct.domain.WishProduct;
 
 public record WishProductResponseDto(
-	ProductResponseDto product
+	ProductResponse product
 ) {
 	static public WishProductResponseDto from(WishProduct wishProduct) {
-		return new WishProductResponseDto(ProductResponseDto.from(wishProduct.getProduct()));
+		return new WishProductResponseDto(ProductResponse.from(wishProduct.getProduct()));
 	}
 }

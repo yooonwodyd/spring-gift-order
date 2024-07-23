@@ -5,6 +5,8 @@ INSERT INTO `category` (`name`) VALUES ('Clothing');
 INSERT INTO `category` (`name`) VALUES ('Toys');
 INSERT INTO `category` (`name`) VALUES ('Furniture');
 
+--- Options 데이터 삽입,
+
 -- User 데이터 삽입
 INSERT INTO `users` (`email`, `password`, `role`) VALUES ('user1@example.com', 'password1', 'USER');
 INSERT INTO `users` (`email`, `password`, `role`) VALUES ('user2@example.com', 'password2', 'USER');

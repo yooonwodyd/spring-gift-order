@@ -6,15 +6,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import gift.core.exception.product.CategoryNotFoundException;
+import gift.feat.product.contoller.dto.response.ProductResponse;
 import gift.feat.product.domain.Category;
+import gift.feat.product.domain.Option;
 import gift.feat.product.domain.Product;
 import gift.feat.product.domain.SearchType;
-import gift.feat.product.contoller.dto.ProductCreateRequest;
+import gift.feat.product.contoller.dto.request.ProductCreateRequest;
 import gift.core.exception.product.DuplicateProductIdException;
 import gift.core.exception.product.ProductNotFoundException;
 import gift.feat.product.repository.CategoryJpaRepository;
+import gift.feat.product.repository.OptionJpaRepository;
 import gift.feat.product.repository.ProductJpaRepository;
-import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
@@ -22,10 +24,13 @@ import java.util.List;
 public class ProductService {
 	private final ProductJpaRepository productRepository;
 	private final CategoryJpaRepository categoryRepository;
+	private final OptionJpaRepository optionRepository;
 
-	public ProductService(ProductJpaRepository productRepository, CategoryJpaRepository categoryRepository) {
+	public ProductService(ProductJpaRepository productRepository, CategoryJpaRepository categoryRepository,
+		OptionJpaRepository optionRepository) {
 		this.productRepository = productRepository;
 		this.categoryRepository = categoryRepository;
+		this.optionRepository = optionRepository;
 	}
 
 	//DB에 해당 카테고리가 존재하는지, 같은 이름으로 생성된 상품이 이미 존재하는지 확인한 뒤 상품을 저장한다.
@@ -39,14 +44,16 @@ public class ProductService {
 				throw new DuplicateProductIdException(productCreateRequest.name());
 			});
 
-		return productRepository.save(productCreateRequest.toEntity(category)).getId();
+		Product product = Product.of(productCreateRequest.name(), productCreateRequest.price(), productCreateRequest.imageUrl(), category);
+		return productRepository.save(product).getId();
 	}
 
 	// 상품 ID로 상품을 찾아 반환한다. 상품이 존재하지 않으면 ProductNotFoundException을 발생시킨다.
 	@Transactional(readOnly = true)
 	public Product getProductById(Long id) {
-		return productRepository.findById(id)
+		Product product = productRepository.findById(id)
 			.orElseThrow(() -> new ProductNotFoundException(id));
+		return product;
 	}
 
 	@Transactional(readOnly = true)
@@ -55,13 +62,13 @@ public class ProductService {
 	}
 
 	@Transactional(readOnly = true)
-	public Page<Product> getProductsWithPaging(Pageable pageable, SearchType searchType, String searchValue) {
+	public Page<ProductResponse> getProductsWithPaging(Pageable pageable, SearchType searchType, String searchValue) {
 		if (searchValue == null || searchValue.isBlank()) {
-			return productRepository.findAll(pageable);
+			return productRepository.findAll(pageable).map(ProductResponse::from);
 		}
 		return switch (searchType) {
-			case NAME -> productRepository.findByNameContaining(searchValue, pageable);
-			case CATEGORY -> productRepository.findByCategoryName(searchValue, pageable);
+			case NAME -> productRepository.findByNameContaining(searchValue, pageable).map(ProductResponse::from);
+			case CATEGORY -> productRepository.findByCategoryName(searchValue, pageable).map(ProductResponse::from);
 		};
 	}
 
