@@ -1,120 +1,100 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>User Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
-<h1>Login</h1>
-<form id="loginForm">
-    <label for="email">Email:</label>
-    <input type="email" id="loginEmail" name="email" required>
-    <br>
-    <label for="password">Password:</label>
-    <input type="password" id="loginPassword" name="password" required>
-    <br>
-    <button type="button" onclick="login()">Login</button>
+<h2>Signup Form</h2>
+<form id="signupForm">
+    <label for="email">이메일:</label>
+    <input type="email" id="email" name="email" required><br><br>
+    <label for="password">비밀번호:</label>
+    <input type="password" id="password" name="password" required><br><br>
+    <button type="submit">회원가입 하기</button>
 </form>
 
-<h1>Signup</h1>
-<form id="signupForm">
-    <label for="email">Email:</label>
-    <input type="email" id="signupEmail" name="email" required>
-    <br>
-    <label for="password">Password:</label>
-    <input type="password" id="signupPassword" name="password" required>
-    <br>
-    <label for="role">Role:</label>
-    <input type="text" id="signupRole" name="role" required>
-    <br>
-    <button type="button" onclick="signup()">Signup</button>
+<form id="loginForm">
+    <label for="email">이메일:</label>
+    <input type="email" id="loginEmail" name="email" required><br><br>
+    <label for="password">비밀번호:</label>
+    <input type="password" id="loginPassword" name="password" required><br><br>
+    <button type="submit">로그인 하기</button>
 </form>
 
 <script>
-    function login() {
-        var email = document.getElementById('loginEmail').value;
-        var password = document.getElementById('loginPassword').value;
+    $(document).ready(function() {
+        $('#signupForm').on('submit', function(event) {
+            event.preventDefault(); // 폼의 기본 제출 동작을 막습니다.
 
-        var data = {
-            email: email,
-            password: password
-        };
+            const email = $('#email').val();
+            const password = $('#password').val();
 
-        fetch('/api/v1/user/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Login failed');
+            const signupRequest = {
+                email: email,
+                password: password
+            };
+
+            $.ajax({
+                url: '/api/v1/user/signup',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(signupRequest),
+                success: function(response) {
+                    alert('Signup success!');
+                    window.location.href = '/main'; // /main 페이지로 이동
+                },
+                error: function(error) {
+                    console.error('Error:', error);
+                    alert('Signup failed!');
                 }
-                return response.text();
-            })
-            .then(token => {
-                document.cookie = `token=${token}; path=/`;
-                alert('Login successful');
-                fetchAdminUserPage(token);
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Login failed');
             });
-    }
+        });
 
-    function signup() {
-        var email = document.getElementById('signupEmail').value;
-        var password = document.getElementById('signupPassword').value;
-        var role = document.getElementById('signupRole').value;
+        $('#loginForm').on('submit', function(event) {
+            event.preventDefault(); // 폼의 기본 제출 동작을 막습니다.
 
-        var data = {
-            email: email,
-            password: password,
-            role: role
-        };
+            const email = $('#loginEmail').val();
+            const password = $('#loginPassword').val();
 
-        fetch('/api/v1/user/signup', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Signup failed');
+            const loginRequest = {
+                email: email,
+                password: password
+            };
+
+            $.ajax({
+                url: '/api/v1/user/login',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(loginRequest),
+                success: function(token) {
+                    // 토큰을 localStorage에 저장
+                    localStorage.setItem('token', token);
+                    // 토큰을 포함한 요청 보내기
+                    $.ajax({
+                        url: '/main',
+                        type: 'GET',
+                        headers: {
+                            'Authorization': 'Bearer ' + token
+                        },
+                        success: function(response) {
+                            $('body').html(response); // 페이지 내용을 업데이트
+                        },
+                        error: function(error) {
+                            console.error('Error:', error);
+                            alert('Failed to load main page!');
+                        }
+                    });
+                },
+                error: function(error) {
+                    console.error('Error:', error);
+                    alert('Login failed!');
                 }
-                return response.text();
-            })
-            .then(() => {
-                alert('Signup successful. Please login.');
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Signup failed');
             });
-    }
-
-    function fetchAdminUserPage(token) {
-        fetch('/admin/user', {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to fetch admin user page');
-                }
-                window.location.href = "/admin/user";
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Failed to fetch admin user page');
-            });
-    }
+        });
+    });
 </script>
 </body>
 </html>

@@ -2,10 +2,14 @@ package gift.core.jwt;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.stereotype.Component;
 
+import gift.user.domain.Role;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -45,13 +49,17 @@ public class JwtProvider {
 	}
 
 	// 토큰 생성, ROLE을 담아서 반환
-	public String generateToken(String userId, String role) {
+	public String generateToken(String userId, Set<Role> roles) {
 		Date now = new Date();
 		Date expiryDate = new Date(now.getTime() + TOKEN_VALIDITY);
 
+
+		// roles를 ,를 구분자로 스트링으로 변환
 		return Jwts.builder()
 			.setSubject(userId)
-			.claim("role", role)
+			.claim("roles", roles.stream()
+				.map(Role::name)
+				.collect(Collectors.joining(",")))
 			.setIssuedAt(now)
 			.setExpiration(expiryDate)
 			.signWith(secretKey, SignatureAlgorithm.HS256)
