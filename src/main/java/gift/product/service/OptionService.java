@@ -1,4 +1,4 @@
-package gift.feat.product.service;
+package gift.product.service;
 
 import java.util.List;
 
@@ -7,13 +7,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import gift.core.exception.product.DuplicateOptionNameException;
 import gift.core.exception.product.ProductNotFoundException;
-import gift.feat.product.contoller.dto.request.OptionRequest;
-import gift.feat.product.contoller.dto.request.ProductCreateRequest;
-import gift.feat.product.contoller.dto.response.OptionResponse;
-import gift.feat.product.domain.Option;
-import gift.feat.product.domain.Product;
-import gift.feat.product.repository.OptionJpaRepository;
-import gift.feat.product.repository.ProductJpaRepository;
+import gift.dto.request.OptionRequest;
+import gift.dto.request.OrderRequest;
+import gift.dto.response.OptionResponse;
+import gift.product.domain.Option;
+import gift.product.domain.Product;
+import gift.product.repository.OptionJpaRepository;
+import gift.product.repository.ProductJpaRepository;
 
 @Service
 public class OptionService {
@@ -27,25 +27,16 @@ public class OptionService {
 
 	@Transactional
 	public Long addOptions(Long id, List<OptionRequest> optionRequests) {
-		// 상품이 존재하는지 확인
-		Product product = getProduct(id);
-		checkOptions(id, optionRequests);
 
-		// 옵션 저장
-		optionRequests.stream()
-			.map(optionRequest -> Option.of(optionRequest.name(), optionRequest.quantity(), product))
-			.forEach(option -> {
-				optionRepository.save(option);
-			});
+		Product product = productRepository.findById(id).orElseThrow(() -> new ProductNotFoundException(id));
+		validateOptions(id, optionRequests);
 
+		List<Option> options = optionRequests.stream()
+			.map(optionRequest -> Option.create(optionRequest.name(), optionRequest.quantity(), product))
+			.toList();
+
+		optionRepository.saveAll(options);
 		return product.getId();
-	}
-
-	@Transactional
-	public OptionResponse getOption(Long id) {
-		Option option = optionRepository.findById(id)
-			.orElseThrow(() -> new ProductNotFoundException(id));
-		return OptionResponse.from(option);
 	}
 
 	@Transactional
@@ -73,23 +64,17 @@ public class OptionService {
 		return id;
 	}
 
-	private Product getProduct(Long id) {
-		Product product = productRepository.findById(id)
-			.orElseThrow(() -> new ProductNotFoundException(id));
-		return product;
+	@Transactional
+	public Long reduceStock(OrderRequest orderRequest) {
+		Option option = optionRepository.findById(orderRequest.optionId())
+			.orElseThrow(() -> new ProductNotFoundException(orderRequest.optionId()));
+
+		option.removeStock(orderRequest.quantity());
+		return option.getId();
 	}
 
-	private void checkOptions(Long id, List<OptionRequest> optionRequests) {
+	private void validateOptions(Long id, List<OptionRequest> optionRequests) {
 		List<Option> options = optionRepository.findAllByProductId(id);
-
-		// List<OptionRequest>에서 중복되는 optionRequest.name이 중복되는 값이 있는지 확인
-		optionRequests.stream()
-			.forEach(optionRequest -> {
-				if (optionRequests.stream().filter(request -> request.name().equals(optionRequest.name())).count() > 1) {
-					throw new DuplicateOptionNameException(optionRequest.name());
-				}
-			});
-
 
 		// 이미 존재하는 옵션이라면 에러 반환
 		optionRequests.stream()
