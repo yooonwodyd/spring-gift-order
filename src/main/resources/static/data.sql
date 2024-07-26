@@ -8,11 +8,11 @@ INSERT INTO `category` (`name`) VALUES ('Furniture');
 --- Options 데이터 삽입,
 
 -- User 데이터 삽입
-INSERT INTO `users` (`email`, `password`, `role`) VALUES ('user1@example.com', 'password1', 'USER');
-INSERT INTO `users` (`email`, `password`, `role`) VALUES ('user2@example.com', 'password2', 'USER');
-INSERT INTO `users` (`email`, `password`, `role`) VALUES ('admin@example.com', 'adminpassword', 'ADMIN');
-INSERT INTO `users` (`email`, `password`, `role`) VALUES ('manager@example.com', 'managerpassword', 'MANAGER');
-INSERT INTO `users` (`email`, `password`, `role`) VALUES ('guest@example.com', 'guestpassword', 'GUEST');
+INSERT INTO `users` (`email`, `password`, `roles`) VALUES ('user1@example.com', 'password1', 'USER');
+INSERT INTO `users` (`email`, `password`, `roles`) VALUES ('user2@example.com', 'password2', 'USER');
+INSERT INTO `users` (`email`, `password`, `roles`) VALUES ('admin@example.com', 'adminpassword', 'ADMIN');
+INSERT INTO `users` (`email`, `password`, `roles`) VALUES ('manager@example.com', 'managerpassword', 'ADMIN');
+INSERT INTO `users` (`email`, `password`, `roles`) VALUES ('guest@example.com', 'guestpassword', 'GUEST');
 
 -- Product 데이터 삽입
 INSERT INTO `product` (`name`, `price`, `image_url`, `category_id`) VALUES ('Product 1', 1000, 'http://example.com/images/product1.jpg', 1);

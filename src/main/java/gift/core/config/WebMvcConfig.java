@@ -4,20 +4,19 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import gift.core.authorization.interceptor.AuthorizationInterceptor;
+import gift.core.interceptor.AuthenticationInterceptor;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
 @RequiredArgsConstructor
 public class WebMvcConfig implements WebMvcConfigurer {
-	private final AuthorizationInterceptor authorizationInterceptor;
+	private final AuthenticationInterceptor authenticationInterceptor;
 
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
-		registry.addInterceptor(authorizationInterceptor)
+		registry.addInterceptor(authenticationInterceptor)
 			.excludePathPatterns("/css/**", "/images/**", "/js/**")
 			.excludePathPatterns("/api/v1/user/signup")
-			.excludePathPatterns("/api/v1/user/login")
-			.excludePathPatterns("/user/login");
+			.excludePathPatterns("/api/v1/user/login");
 	}
 }
